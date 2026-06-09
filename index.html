@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TA Exam Trainer — 12 July</title>
+<style>
+  :root{
+    --bg:#0f1419; --card:#1a2129; --card2:#222b35; --line:#2e3a46;
+    --text:#e8eef4; --dim:#8fa1b3; --accent:#4da3ff; --green:#3ddc84;
+    --red:#ff5c5c; --amber:#ffc857; --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+       background:var(--bg); color:var(--text); min-height:100vh;}
+  .wrap{max-width:680px; margin:0 auto; padding:14px 14px 90px;}
+  h1{font-size:1.25rem; margin:8px 0 2px;}
+  .sub{color:var(--dim); font-size:.85rem; margin-bottom:14px;}
+  .countdown{display:inline-block; background:var(--card2); border:1px solid var(--line);
+             padding:3px 10px; border-radius:20px; color:var(--amber); font-weight:600; font-size:.8rem;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+        padding:16px; margin-bottom:12px;}
+  .btn{display:block; width:100%; text-align:left; background:var(--card2); color:var(--text);
+       border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;
+       font-size:1rem; cursor:pointer; margin-bottom:10px; transition:border-color .15s;}
+  .btn:active{border-color:var(--accent);}
+  .btn .big{font-weight:700; font-size:1.05rem;}
+  .btn .small{color:var(--dim); font-size:.8rem; margin-top:2px;}
+  .btn-primary{background:var(--accent); color:#06121f; font-weight:700; text-align:center;}
+  .btn-ghost{background:none; text-align:center; color:var(--dim);}
+  .row{display:flex; gap:10px;} .row .btn{flex:1;}
+  /* progress bar */
+  .bar{height:8px; background:var(--card2); border-radius:5px; overflow:hidden; margin-top:6px;}
+  .bar i{display:block; height:100%; background:var(--green); border-radius:5px;}
+  .bar i.acc{background:var(--accent);}
+  /* topic picker */
+  .sect{margin:14px 0 6px; font-weight:700; color:var(--accent); font-size:.85rem;
+        text-transform:uppercase; letter-spacing:.06em; display:flex; justify-content:space-between; align-items:center;}
+  .sect button{background:none; border:none; color:var(--dim); font-size:.75rem; cursor:pointer; text-decoration:underline;}
+  label.topic{display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--line);
+              font-size:.92rem; cursor:pointer;}
+  label.topic input{width:18px; height:18px; accent-color:var(--accent); flex-shrink:0;}
+  label.topic .cnt{margin-left:auto; color:var(--dim); font-size:.78rem; white-space:nowrap;}
+  /* quiz */
+  .qmeta{display:flex; justify-content:space-between; align-items:center; color:var(--dim);
+         font-size:.78rem; margin-bottom:10px; gap:8px; flex-wrap:wrap;}
+  .pill{background:var(--card2); border:1px solid var(--line); padding:2px 9px; border-radius:12px;}
+  .passage{background:var(--card2); border-left:3px solid var(--accent); padding:10px 12px;
+           border-radius:8px; font-size:.88rem; color:var(--dim); margin-bottom:12px; white-space:pre-wrap;}
+  .qtext{font-size:1.05rem; line-height:1.5; margin-bottom:16px; white-space:pre-wrap; font-weight:550;}
+  .opt{display:flex; gap:10px; align-items:flex-start; width:100%; text-align:left;
+       background:var(--card2); color:var(--text); border:1.5px solid var(--line);
+       border-radius:var(--radius); padding:12px 14px; font-size:.97rem; cursor:pointer;
+       margin-bottom:9px; line-height:1.4;}
+  .opt b{color:var(--dim); flex-shrink:0;}
+  .opt.correct{border-color:var(--green); background:rgba(61,220,132,.12);}
+  .opt.correct b{color:var(--green);}
+  .opt.wrong{border-color:var(--red); background:rgba(255,92,92,.12);}
+  .opt.wrong b{color:var(--red);}
+  .opt:disabled{cursor:default; opacity:1;}
+  .explain{border-radius:var(--radius); padding:13px 15px; margin-top:14px; font-size:.92rem;
+           line-height:1.55; white-space:pre-wrap; background:var(--card2); border:1px solid var(--line);}
+  .explain .tag{font-weight:700; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;}
+  .explain.exp .tag{color:var(--accent);}
+  .explain.cue{border-color:rgba(255,200,87,.4);}
+  .explain.cue .tag{color:var(--amber);}
+  .verdict{font-weight:800; font-size:1.05rem; margin-top:12px;}
+  .verdict.ok{color:var(--green);} .verdict.no{color:var(--red);}
+  .star{background:none; border:none; font-size:1.35rem; cursor:pointer; padding:2px 6px; line-height:1;
+        filter:grayscale(1); opacity:.55;}
+  .star.on{filter:none; opacity:1;}
+  /* stats */
+  .stat-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:.85rem;}
+  .stat-row .name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .stat-row .nums{color:var(--dim); font-size:.75rem; white-space:nowrap;}
+  .stat-row .bar{width:90px; margin:0; flex-shrink:0;}
+  .bignum{font-size:1.7rem; font-weight:800;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center;}
+  .grid3 .card{margin:0; padding:12px 6px;}
+  .grid3 .lbl{color:var(--dim); font-size:.72rem; margin-top:2px;}
+  /* bottom nav */
+  .nav{position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--line);
+       display:flex; max-width:680px; margin:0 auto;}
+  .nav button{flex:1; background:none; border:none; color:var(--dim); padding:10px 4px 14px;
+              font-size:.7rem; cursor:pointer;}
+  .nav button.on{color:var(--accent);}
+  .nav .ico{font-size:1.25rem; display:block; margin-bottom:2px;}
+  .basics-body{white-space:pre-wrap; font-size:.9rem; line-height:1.6; color:var(--text);}
+  details{border-bottom:1px solid var(--line); padding:4px 0;}
+  summary{cursor:pointer; padding:9px 2px; font-size:.92rem; font-weight:600; list-style-position:inside;}
+  .timer{font-variant-numeric:tabular-nums; font-weight:700;}
+  .timer.low{color:var(--red);}
+  .hidden{display:none !important;}
+  @media (min-width:700px){ body{padding-top:10px;} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="nav" id="nav">
+  <button data-v="home"><span class="ico">🏠</span>Home</button>
+  <button data-v="learn"><span class="ico">🎲</span>Learn</button>
+  <button data-v="revise"><span class="ico">🔁</span>Revise</button>
+  <button data-v="basics"><span class="ico">📘</span>Basics</button>
+  <button data-v="stats"><span class="ico">📊</span>Stats</button>
+</div>
+
+<script src="data.js"></script>
+<script>
+'use strict';
+/* ================= state & persistence ================= */
+const EXAM_DATE = new Date('2026-07-12T00:00:00');
+const LS_KEY = 'ta-exam-v1';          // legacy single-user key (migrated on first login)
+const PROF_KEY = 'ta-profiles';
+const Q = TA_DATA.questions, TOPICS = TA_DATA.topics;
+const QBYID = Object.fromEntries(Q.map(q => [q.id, q]));
+
+/* ---- profiles: each learner gets their own progress on this device ---- */
+let P = loadProfiles();
+function loadProfiles(){
+  try{ const p = JSON.parse(localStorage.getItem(PROF_KEY)); if(p && p.users) return p; }catch(e){}
+  return {users:[], cur:null};
+}
+function saveProfiles(){ localStorage.setItem(PROF_KEY, JSON.stringify(P)); }
+function dataKey(name){ return LS_KEY + ':' + name.toLowerCase(); }
+function pinHash(s){ let h=5381; for(const c of String(s)) h=(h*33 + c.charCodeAt(0))>>>0; return h.toString(36); }
+function currentUser(){ return P.users.find(u=>u.n===P.cur) || null; }
+function loginAs(name){
+  P.cur = name; saveProfiles();
+  S = load(); setView('home');
+}
+function logout(){ P.cur = null; saveProfiles(); setView('login'); }
+function createProfile(name, pin){
+  name = name.trim().slice(0,20);
+  if(!name) return 'Enter a name.';
+  if(P.users.some(u=>u.n.toLowerCase()===name.toLowerCase())) return 'That name is taken on this device.';
+  P.users.push({n:name, p: pin ? pinHash(pin) : null});
+  // first profile inherits any pre-profile progress saved on this device
+  if(P.users.length===1 && localStorage.getItem(LS_KEY)){
+    localStorage.setItem(dataKey(name), localStorage.getItem(LS_KEY));
+    localStorage.removeItem(LS_KEY);
+  }
+  saveProfiles(); loginAs(name);
+  return null;
+}
+
+let S = load();
+function load(){
+  try{
+    const s = (P.cur && JSON.parse(localStorage.getItem(dataKey(P.cur)))) || {};
+    return { prog: s.prog || {},            // id -> {box,seen,right,wrong,last}
+             stars: s.stars || {},          // id -> 1
+             topics: s.topics || null,      // selected topic ids (null = all)
+             daily: s.daily || {} };        // 'YYYY-MM-DD' -> answered count
+  }catch(e){ return {prog:{},stars:{},topics:null,daily:{}}; }
+}
+let saveTimer;
+function save(){
+  if(!P.cur) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>localStorage.setItem(dataKey(P.cur), JSON.stringify(S)), 150);
+}
+function today(){ return new Date().toISOString().slice(0,10); }
+function selectedTopics(){ return S.topics === null ? TOPICS.map(t=>t.id) : S.topics; }
+function poolQs(){ const set = new Set(selectedTopics()); return Q.filter(q=>set.has(q.t)); }
+
+/* ================= scheduling: weighted random Leitner ================= */
+/* box: undefined=new, 0=just wrong, 1..3 = increasingly mastered */
+function weight(q){
+  const p = S.prog[q.id];
+  if(!p) return 8;                 // never seen — high priority
+  if(p.box === 0) return 12;       // got it wrong — highest priority
+  if(p.box === 1) return 5;
+  if(p.box === 2) return 2;
+  return 1;                        // mastered — rare refresher
+}
+function pickNext(pool, lastId){
+  if(!pool.length) return null;
+  if(pool.length > 1 && lastId) pool = pool.filter(q=>q.id!==lastId);
+  let total = 0; const w = pool.map(q => total += weight(q));
+  const r = Math.random()*total;
+  for(let i=0;i<pool.length;i++) if(r < w[i]) return pool[i];
+  return pool[pool.length-1];
+}
+function record(q, correct){
+  const p = S.prog[q.id] || {box:undefined,seen:0,right:0,wrong:0};
+  p.seen++; p.last = Date.now();
+  if(correct){ p.right++; p.box = p.box===undefined ? 1 : Math.min(3, p.box+1); }
+  else       { p.wrong++; p.box = 0; }
+  S.prog[q.id] = p;
+  S.daily[today()] = (S.daily[today()]||0)+1;
+  save();
+}
+
+/* ================= views ================= */
+const app = document.getElementById('app');
+let view = P.cur ? 'home' : 'login', session = null;
+
+function setView(v){ view = P.cur ? v : 'login'; session = null; render(); window.scrollTo(0,0); }
+document.getElementById('nav').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(b) setView(b.dataset.v);
+});
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function navHi(){ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===view)); }
+
+function daysLeft(){ return Math.max(0, Math.ceil((EXAM_DATE - new Date())/864e5)); }
+
+/* ---------- login ---------- */
+function renderLogin(){
+  const users = P.users.map((u,i)=>`
+    <button class="btn" data-u="${i}">
+      <span class="big">👤 ${esc(u.n)}</span>
+      <span class="small">${u.p?'🔒 PIN protected':'tap to continue'}</span>
+    </button>`).join('');
+  app.innerHTML = `
+    <h1>🎖️ Territorial Army Exam Trainer</h1>
+    <div class="sub">${Q.length} questions · 25 topics &nbsp;
+      <span class="countdown">⏳ ${daysLeft()} days to 12 July</span></div>
+    <div class="card">
+      <b>Who is studying?</b>
+      <div class="sub" style="margin:4px 0 12px">Each person gets their own progress, revision queue and stats on this device. Use <b>Backup</b> (on the Home screen) to move your progress to another phone or laptop.</div>
+      ${users || '<div class="sub">No profiles yet — create the first one below.</div>'}
+    </div>
+    <div class="card">
+      <b>New profile</b>
+      <input id="npName" placeholder="Your name" maxlength="20" autocomplete="off"
+        style="display:block;width:100%;margin:10px 0;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:1rem">
+      <input id="npPin" placeholder="PIN (optional, 4-6 digits)" inputmode="numeric" maxlength="6" autocomplete="off"
+        style="display:block;width:100%;margin:0 0 10px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:1rem">
+      <div class="sub" id="npErr" style="color:var(--red)"></div>
+      <button class="btn btn-primary" id="npGo">Start learning →</button>
+    </div>`;
+  app.querySelectorAll('[data-u]').forEach(b => b.onclick = ()=>{
+    const u = P.users[+b.dataset.u];
+    if(!u.p) return loginAs(u.n);
+    const pin = prompt('Enter PIN for ' + u.n);
+    if(pin === null) return;
+    if(pinHash(pin) === u.p) loginAs(u.n);
+    else alert('Wrong PIN.');
+  });
+  document.getElementById('npGo').onclick = ()=>{
+    const pin = document.getElementById('npPin').value.trim();
+    if(pin && !/^\d{4,6}$/.test(pin)){ document.getElementById('npErr').textContent='PIN must be 4-6 digits.'; return; }
+    const err = createProfile(document.getElementById('npName').value, pin);
+    if(err) document.getElementById('npErr').textContent = err;
+  };
+}
+
+/* ---------- backup / transfer ---------- */
+function exportBlob(){
+  return JSON.stringify({app:'ta-exam-trainer', v:1, name:P.cur, exported:new Date().toISOString(), data:S});
+}
+function importBlob(text){
+  let d;
+  try{ d = JSON.parse(text); }catch(e){ return 'That is not a valid backup.'; }
+  if(!d || d.app!=='ta-exam-trainer' || !d.data) return 'That is not a valid backup.';
+  const t = statTotals();
+  if(t.seen > 0 && !confirm(`Replace ${esc(P.cur)}'s current progress (${t.seen} questions seen) with this backup from "${d.name||'unknown'}"?`)) return 'Cancelled — nothing changed.';
+  S = { prog:d.data.prog||{}, stars:d.data.stars||{}, topics:d.data.topics||null, daily:d.data.daily||{} };
+  save();
+  return null;
+}
+function renderBackup(){
+  app.innerHTML = `
+    <h1>💾 Backup &amp; transfer</h1>
+    <div class="sub">Progress lives in this browser. Back it up to a file to resume on another phone/laptop, or as a safety copy.</div>
+    <div class="card">
+      <b>Save my progress</b>
+      <div class="sub" style="margin:4px 0 10px">Downloads a small file. Send it to yourself (WhatsApp/email) to open elsewhere.</div>
+      <button class="btn btn-primary" id="dlBtn">⬇️ Download backup file</button>
+      <button class="btn" id="cpBtn" style="text-align:center">📋 Copy backup code</button>
+    </div>
+    <div class="card">
+      <b>Resume from a backup</b>
+      <div class="sub" style="margin:4px 0 10px">Pick the backup file, or paste a backup code below.</div>
+      <input type="file" id="upFile" accept=".json,application/json" style="display:none">
+      <button class="btn btn-primary" id="upBtn">⬆️ Restore from file</button>
+      <textarea id="pasteBox" placeholder="…or paste a backup code here" rows="3"
+        style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:.85rem"></textarea>
+      <button class="btn" id="pasteBtn" style="text-align:center">Restore from pasted code</button>
+      <div class="sub" id="bkMsg"></div>
+    </div>
+    <button class="btn btn-ghost" onclick="setView('home')">← Back</button>`;
+  const msg = (t,ok)=>{ const el=document.getElementById('bkMsg'); el.textContent=t; el.style.color=ok?'var(--green)':'var(--red)'; };
+  document.getElementById('dlBtn').onclick = ()=>{
+    const blob = new Blob([exportBlob()], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `ta-progress-${(P.cur||'me').toLowerCase()}-${today()}.json`;
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+  document.getElementById('cpBtn').onclick = async ()=>{
+    const code = btoa(unescape(encodeURIComponent(exportBlob())));
+    try{ await navigator.clipboard.writeText(code); msg('Copied! Paste it on the other device.', true); }
+    catch(e){ document.getElementById('pasteBox').value = code; msg('Copy the code from the box below.', true); }
+  };
+  document.getElementById('upBtn').onclick = ()=>document.getElementById('upFile').click();
+  document.getElementById('upFile').onchange = e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=>{ const err = importBlob(r.result); msg(err || (err===null?'✅ Progress restored!':''), !err); if(!err) setTimeout(()=>setView('home'), 800); };
+    r.readAsText(f);
+  };
+  document.getElementById('pasteBtn').onclick = ()=>{
+    let t = document.getElementById('pasteBox').value.trim();
+    if(!t) return msg('Paste a code first.', false);
+    try{ if(t[0] !== '{') t = decodeURIComponent(escape(atob(t))); }catch(e){ return msg('That code is not valid.', false); }
+    const err = importBlob(t);
+    msg(err || (err===null?'✅ Progress restored!':''), !err);
+    if(!err) setTimeout(()=>setView('home'), 800);
+  };
+}
+
+/* ---------- home ---------- */
+function statTotals(){
+  const pool = poolQs();
+  let seen=0, mastered=0, weak=0, right=0, attempts=0;
+  for(const q of pool){
+    const p = S.prog[q.id]; if(!p) continue;
+    seen++; right += p.right; attempts += p.seen;
+    if(p.box>=3) mastered++; if(p.box===0) weak++;
+  }
+  return {pool:pool.length, seen, mastered, weak, right, attempts};
+}
+function renderHome(){
+  const t = statTotals();
+  const td = S.daily[today()]||0;
+  app.innerHTML = `
+    <h1>🎖️ Territorial Army Exam Trainer</h1>
+    <div class="sub">👤 <b style="color:var(--text)">${esc(P.cur)}</b> · ${Q.length} questions &nbsp;
+      <span class="countdown">⏳ ${daysLeft()} days to 12 July</span></div>
+
+    <div class="grid3">
+      <div class="card"><div class="bignum">${t.seen}<span style="font-size:.9rem;color:var(--dim)">/${t.pool}</span></div><div class="lbl">questions seen</div></div>
+      <div class="card"><div class="bignum" style="color:var(--green)">${t.mastered}</div><div class="lbl">mastered</div></div>
+      <div class="card"><div class="bignum" style="color:var(--red)">${t.weak}</div><div class="lbl">need work</div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem">
+        <span>Coverage</span><span class="sub">${Math.round(100*t.seen/Math.max(1,t.pool))}%</span></div>
+      <div class="bar"><i style="width:${100*t.seen/Math.max(1,t.pool)}%"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-top:10px">
+        <span>Accuracy</span><span class="sub">${t.attempts?Math.round(100*t.right/t.attempts):0}%</span></div>
+      <div class="bar"><i class="acc" style="width:${t.attempts?100*t.right/t.attempts:0}%"></i></div>
+      <div class="sub" style="margin-top:10px;margin-bottom:0">Answered today: <b style="color:var(--text)">${td}</b>
+        ${td===0?'— do at least 40 a day to finish the bank twice before the exam.':td<40?'— keep going, target 40+.':' ✅ daily target hit!'}</div>
+    </div>
+
+    <button class="btn" onclick="startLearn()">
+      <span class="big">🎲 Learn — random practice</span>
+      <span class="small">One question at a time. New &amp; weak questions appear more often.</span></button>
+    <button class="btn" onclick="startRevise()">
+      <span class="big">🔁 Revise — weak &amp; starred only</span>
+      <span class="small">${reviseCount()} questions you got wrong or starred.</span></button>
+    <button class="btn" onclick="startTest(100)">
+      <span class="big">⏱️ Full mock — real exam format</span>
+      <span class="small">100 Qs · 2 hrs · 40 Reasoning + 30 GK/CA + 30 English · +1 / −0.33 marking</span></button>
+    <button class="btn" onclick="startTest(25)">
+      <span class="big">⚡ Quick mock — 25 Qs, 30 min</span>
+      <span class="small">Same format &amp; pace, quarter size. Uses the full question bank.</span></button>
+    <button class="btn" onclick="setView('topics')">
+      <span class="big">🗂️ Choose topics</span>
+      <span class="small">${S.topics===null?'All topics selected':selectedTopics().length+' of '+TOPICS.length+' topics selected'}</span></button>
+    <div class="row">
+      <button class="btn" style="text-align:center" onclick="setView('backup')">💾 Backup / resume</button>
+      <button class="btn" style="text-align:center" onclick="logout()">👤 Switch user</button>
+    </div>`;
+}
+
+/* ---------- topic picker ---------- */
+function renderTopics(){
+  const sel = new Set(selectedTopics());
+  const sections = [...new Set(TOPICS.map(t=>t.section))];
+  let html = `<h1>🗂️ Choose topics</h1><div class="sub">Learn, Revise, Mock and Stats all use this selection.</div>`;
+  for(const sec of sections){
+    const ts = TOPICS.filter(t=>t.section===sec);
+    html += `<div class="sect">${esc(sec)} <button onclick="toggleSection('${esc(sec)}')">toggle all</button></div>`;
+    for(const t of ts){
+      html += `<label class="topic"><input type="checkbox" data-t="${esc(t.id)}" ${sel.has(t.id)?'checked':''}>
+               ${esc(t.name)} <span class="cnt">${t.count} Qs</span></label>`;
+    }
+  }
+  html += `<div style="height:14px"></div>
+    <button class="btn btn-primary" onclick="setView('home')">Done</button>
+    <button class="btn btn-ghost" onclick="S.topics=null;save();renderTopics()">Select all</button>`;
+  app.innerHTML = html;
+  app.querySelectorAll('input[data-t]').forEach(cb => cb.addEventListener('change', ()=>{
+    const cur = new Set(selectedTopics());
+    cb.checked ? cur.add(cb.dataset.t) : cur.delete(cb.dataset.t);
+    S.topics = [...cur]; save();
+  }));
+}
+function toggleSection(sec){
+  const ids = TOPICS.filter(t=>t.section===sec).map(t=>t.id);
+  const cur = new Set(selectedTopics());
+  const allOn = ids.every(id=>cur.has(id));
+  ids.forEach(id => allOn ? cur.delete(id) : cur.add(id));
+  S.topics = [...cur]; save(); renderTopics();
+}
+
+/* ---------- learn / revise (one-by-one random) ---------- */
+function reviseCount(){
+  return poolQs().filter(q => (S.prog[q.id]&&S.prog[q.id].box===0) || S.stars[q.id]).length;
+}
+function startLearn(){ view='learn'; session={mode:'learn', lastId:null, done:0, right:0}; render(); }
+function startRevise(){
+  if(!reviseCount()){ view='revise'; session=null; render(); return; }
+  view='revise'; session={mode:'revise', lastId:null, done:0, right:0}; render();
+}
+function sessionPool(){
+  if(session.mode==='revise')
+    return poolQs().filter(q => (S.prog[q.id]&&S.prog[q.id].box===0) || S.stars[q.id]);
+  return poolQs();
+}
+function renderQuiz(){
+  if(!session){ // revise with nothing due
+    app.innerHTML = `<h1>🔁 Revise</h1><div class="card">Nothing to revise yet — no wrong answers and no ⭐ starred questions in the selected topics.<br><br>Do a Learn session first; everything you miss lands here automatically.</div>
+    <button class="btn btn-primary" onclick="startLearn()">Go to Learn 🎲</button>`;
+    return;
+  }
+  const pool = sessionPool();
+  if(!pool.length){
+    app.innerHTML = `<h1>🎉 All clear!</h1><div class="card">You cleared every question in this list. Outstanding.</div>
+    <button class="btn btn-primary" onclick="setView('home')">Back home</button>`;
+    return;
+  }
+  const q = pickNext(pool, session.lastId);
+  session.lastId = q.id; session.q = q; session.answered = false;
+  showQuestion(q, {
+    header: `${session.mode==='revise'?'🔁 Revise':'🎲 Learn'} · ${session.done?Math.round(100*session.right/session.done):'–'}% this session`,
+    counter: `${session.done+1}`,
+    onAnswer(correct){ record(q, correct); session.done++; if(correct) session.right++; },
+    onNext(){ renderQuiz(); window.scrollTo(0,0); }
+  });
+}
+function topicName(id){ const t=TOPICS.find(t=>t.id===id); return t?t.name:id; }
+
+function showQuestion(q, cfg){
+  const starred = !!S.stars[q.id];
+  app.innerHTML = `
+    <div class="qmeta">
+      <span class="pill">${esc(topicName(q.t))}</span>
+      <span>${esc(cfg.header)} · Q${cfg.counter}</span>
+      <button class="star ${starred?'on':''}" id="star" title="Star for revision">⭐</button>
+    </div>
+    ${q.p?`<div class="passage">${esc(q.p)}</div>`:''}
+    <div class="qtext">${esc(q.q)}</div>
+    <div id="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}"><b>${'ABCD'[i]}</b><span>${esc(o)}</span></button>`).join('')}</div>
+    <div id="after"></div>`;
+  document.getElementById('star').onclick = function(){
+    if(S.stars[q.id]) delete S.stars[q.id]; else S.stars[q.id]=1;
+    save(); this.classList.toggle('on');
+  };
+  const opts = [...app.querySelectorAll('.opt')];
+  function answer(i){
+    if(session && session.answered) return;
+    if(session) session.answered = true;
+    opts.forEach(b=>b.disabled=true);
+    opts[q.a].classList.add('correct');
+    const correct = i===q.a;
+    if(!correct) opts[i].classList.add('wrong');
+    cfg.onAnswer(correct);
+    document.getElementById('after').innerHTML = `
+      <div class="verdict ${correct?'ok':'no'}">${correct?'✅ Correct!':'❌ Wrong — answer is '+'ABCD'[q.a]}</div>
+      ${q.e?`<div class="explain exp"><span class="tag">Why</span><br>${esc(q.e)}</div>`:''}
+      ${q.m?`<div class="explain cue"><span class="tag">💡 Memory cue</span><br>${esc(q.m)}</div>`:''}
+      <div style="height:12px"></div>
+      <button class="btn btn-primary" id="nextBtn">Next →</button>`;
+    document.getElementById('nextBtn').onclick = cfg.onNext;
+    document.getElementById('nextBtn').focus();
+  }
+  opts.forEach(b => b.onclick = ()=>answer(+b.dataset.i));
+  keyHandler = e=>{
+    const k = e.key.toUpperCase();
+    if(!session || !session.answered){
+      const i = 'ABCD'.indexOf(k) >= 0 ? 'ABCD'.indexOf(k) : '1234'.indexOf(k);
+      if(i>=0 && !opts[0].disabled) answer(i);
+    } else if(k==='ENTER'||k===' '){ e.preventDefault(); cfg.onNext(); }
+  };
+}
+let keyHandler = null;
+document.addEventListener('keydown', e=>{
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if(keyHandler && !e.metaKey && !e.ctrlKey) keyHandler(e);
+});
+
+/* ---------- mock test (mirrors real TA CBT: 12 Jul 2026) ----------
+   Real paper: 100 MCQs · 120 min · Part 1 Reasoning (40) → Part 2 GK incl.
+   Current Affairs (30) → Part 3 English (30) · +1 correct, −0.33 wrong,
+   skipped = 0. Quick mock is the same format at quarter size.            */
+function sample(arr, n){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a.slice(0, n);
+}
+function startTest(size){
+  const bank = sec => Q.filter(q => { const t = TOPICS.find(t=>t.id===q.t); return t.section===sec; });
+  const full = size >= 100;
+  // composition per the official pattern (scaled for quick mock)
+  const plan = full ? [['Reasoning',40],['GK',23],['Current Affairs',7],['English',30]]
+                    : [['Reasoning',10],['GK',6],['Current Affairs',2],['English',7]];
+  let qs = [];
+  for(const [sec,n] of plan) qs = qs.concat(sample(bank(sec), n));   // exam order: R → GK/CA → E
+  const mins = full ? 120 : 30;
+  view='test';
+  session = {mode:'test', qs, idx:0, picks:new Array(qs.length).fill(null),
+             ends:Date.now()+mins*60*1000, timer:null, full};
+  render();
+}
+function qSection(q){ const t = TOPICS.find(t=>t.id===q.t); return t ? t.section : ''; }
+function renderTest(){
+  const s = session;
+  if(s.idx >= s.qs.length || Date.now() > s.ends){ finishTest(); return; }
+  const q = s.qs[s.idx];
+  const sec = qSection(q);
+  const part = {'Reasoning':'Part 1 · Reasoning','GK':'Part 2 · GK','Current Affairs':'Part 2 · Current Affairs','English':'Part 3 · English'}[sec] || sec;
+  app.innerHTML = `
+    <div class="qmeta">
+      <span class="pill">${esc(part)}</span>
+      <span class="timer" id="tmr">--:--</span>
+      <span>Q${s.idx+1}/${s.qs.length}</span>
+    </div>
+    ${q.p?`<div class="passage">${esc(q.p)}</div>`:''}
+    <div class="qtext">${esc(q.q)}</div>
+    <div id="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}"><b>${'ABCD'[i]}</b><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="skipBtn" style="text-align:center">Skip (no penalty)</button>
+      <button class="btn btn-primary" id="nextBtn" disabled style="opacity:.5">Save &amp; Next →</button>
+    </div>
+    <button class="btn btn-ghost" onclick="if(confirm('Submit the test now?')) finishTest()">Submit test</button>`;
+  const opts = [...app.querySelectorAll('.opt')];
+  const nextBtn = document.getElementById('nextBtn');
+  let picked = null;
+  function pick(i){
+    picked = i;
+    opts.forEach((b,j)=>{ b.style.borderColor = j===i ? 'var(--accent)' : 'var(--line)';
+                          b.style.background = j===i ? 'rgba(77,163,255,.12)' : 'var(--card2)'; });
+    nextBtn.disabled = false; nextBtn.style.opacity = 1;
+  }
+  function advance(answer){
+    s.picks[s.idx] = answer;                       // null = skipped, else option index
+    if(answer !== null) record(q, answer === q.a); // feeds Revise mode, but no feedback shown
+    s.idx++; renderTest(); window.scrollTo(0,0);
+  }
+  opts.forEach(b => b.onclick = ()=>pick(+b.dataset.i));
+  nextBtn.onclick = ()=>{ if(picked!==null) advance(picked); };
+  document.getElementById('skipBtn').onclick = ()=>advance(null);
+  keyHandler = e=>{
+    const k = e.key.toUpperCase();
+    const i = 'ABCD'.indexOf(k) >= 0 ? 'ABCD'.indexOf(k) : '1234'.indexOf(k);
+    if(i>=0) pick(i);
+    else if((k==='ENTER'||k===' ') && picked!==null){ e.preventDefault(); advance(picked); }
+    else if(k==='S'){ advance(null); }
+  };
+  clearInterval(s.timer);
+  s.timer = setInterval(()=>{
+    const el = document.getElementById('tmr');
+    if(!el || view!=='test'){ clearInterval(s.timer); return; }
+    const ms = s.ends - Date.now();
+    if(ms<=0){ clearInterval(s.timer); finishTest(); return; }
+    const m = Math.floor(ms/60000), secs = Math.floor(ms/1000)%60;
+    el.textContent = `⏱ ${m}:${String(secs).padStart(2,'0')}`;
+    el.classList.toggle('low', ms < 5*60*1000);
+  }, 500);
+}
+function finishTest(){
+  const s = session; if(!s) return;
+  clearInterval(s.timer);
+  const bySec = {};
+  let right=0, wrong=0, skipped=0;
+  s.qs.forEach((q,i)=>{
+    const pickVal = s.picks[i];
+    const sec = qSection(q);
+    const b = bySec[sec] || (bySec[sec]={right:0,wrong:0,skip:0,total:0});
+    b.total++;
+    if(pickVal===null){ skipped++; b.skip++; }
+    else if(pickVal===q.a){ right++; b.right++; }
+    else { wrong++; b.wrong++; }
+  });
+  const score = Math.round((right - wrong/3) * 100) / 100;
+  const max = s.qs.length;
+  const review = s.qs.map((q,i)=>({q, p:s.picks[i]})).filter(x => x.p !== x.q.a);
+  let secRows = '';
+  for(const [sec,b] of Object.entries(bySec)){
+    const sScore = Math.round((b.right - b.wrong/3)*100)/100;
+    secRows += `<div class="stat-row"><span class="name">${esc(sec)}</span>
+      <span class="nums">✅${b.right} ❌${b.wrong} ⏭${b.skip} · <b style="color:var(--text)">${sScore}/${b.total}</b></span></div>`;
+  }
+  const pct = Math.round(100*score/max);
+  app.innerHTML = `
+    <h1>⏱️ Mock result — ${score} / ${max}</h1>
+    <div class="sub">+1 per correct · −0.33 per wrong · 0 for skipped (real exam scoring)</div>
+    <div class="grid3">
+      <div class="card"><div class="bignum" style="color:var(--green)">${right}</div><div class="lbl">correct</div></div>
+      <div class="card"><div class="bignum" style="color:var(--red)">${wrong}</div><div class="lbl">wrong</div></div>
+      <div class="card"><div class="bignum" style="color:var(--dim)">${skipped}</div><div class="lbl">skipped</div></div>
+    </div>
+    <div class="card" style="margin-top:12px">${secRows}</div>
+    <div class="card">${pct>=70?'🏆 Strong score — typical safe zone is 60%+.':pct>=50?'Decent — sharpen the weak sections below.':'Focus on accuracy first: a wrong guess costs 0.33, a skip costs nothing.'}</div>
+    ${review.length?`<h1 style="font-size:1.05rem">Review — wrong &amp; skipped (${review.length})</h1>`:''}
+    ${review.map(x=>`
+      <div class="card">
+        <div class="qmeta"><span class="pill">${esc(topicName(x.q.t))}</span>
+          <span style="color:${x.p===null?'var(--dim)':'var(--red)'}">${x.p===null?'skipped':'you chose '+'ABCD'[x.p]}</span></div>
+        ${x.q.p?`<div class="passage">${esc(x.q.p)}</div>`:''}
+        <div class="qtext" style="font-size:.95rem">${esc(x.q.q)}</div>
+        <div style="color:var(--green);font-weight:600">✓ ${'ABCD'[x.q.a]}. ${esc(x.q.o[x.q.a])}</div>
+        ${x.q.e?`<div class="explain exp"><span class="tag">Why</span><br>${esc(x.q.e)}</div>`:''}
+        ${x.q.m?`<div class="explain cue"><span class="tag">💡 Memory cue</span><br>${esc(x.q.m)}</div>`:''}
+      </div>`).join('')}
+    <button class="btn btn-primary" onclick="startTest(${s.full?100:25})">New mock</button>
+    <button class="btn" onclick="startRevise()">🔁 Revise my mistakes</button>
+    <button class="btn btn-ghost" onclick="setView('home')">Home</button>`;
+  session = null; keyHandler = null;
+}
+
+/* ---------- basics ---------- */
+function renderBasics(){
+  let html = `<h1>📘 Topic basics</h1><div class="sub">Methods, formulas and traps for each topic — read before practising.</div>`;
+  const sections = [...new Set(TOPICS.map(t=>t.section))];
+  for(const sec of sections){
+    html += `<div class="sect">${esc(sec)}</div>`;
+    for(const t of TOPICS.filter(t=>t.section===sec)){
+      if(!t.basics) continue;
+      html += `<details><summary>${esc(t.name)}</summary><div class="basics-body">${esc(t.basics)}</div></details>`;
+    }
+  }
+  app.innerHTML = html;
+}
+
+/* ---------- stats ---------- */
+function renderStats(){
+  let html = `<h1>📊 Progress by topic</h1><div class="sub">Green = coverage · Blue = accuracy</div>`;
+  const sections = [...new Set(TOPICS.map(t=>t.section))];
+  const sel = new Set(selectedTopics());
+  for(const sec of sections){
+    html += `<div class="sect">${esc(sec)}</div>`;
+    for(const t of TOPICS.filter(t=>t.section===sec && sel.has(t.id))){
+      let seen=0, right=0, att=0;
+      for(const q of Q){ if(q.t!==t.id) continue; const p=S.prog[q.id]; if(p){seen++; right+=p.right; att+=p.seen;} }
+      const cov = Math.round(100*seen/Math.max(1,t.count));
+      const acc = att?Math.round(100*right/att):0;
+      html += `<div class="stat-row">
+        <span class="name">${esc(t.name)}</span>
+        <span class="nums">${seen}/${t.count} · ${att?acc+'%':'—'}</span>
+        <span class="bar" style="position:relative"><i style="width:${cov}%"></i><i class="acc" style="width:${att?acc:0}%;margin-top:1px"></i></span>
+      </div>`;
+    }
+  }
+  html += `<div style="height:18px"></div>
+    <button class="btn btn-ghost" onclick="if(confirm('Erase ALL progress for '+P.cur+'? This cannot be undone.')){localStorage.removeItem(dataKey(P.cur));S=load();render();}">Reset my progress</button>`;
+  app.innerHTML = html;
+}
+
+/* ---------- router ---------- */
+function render(){
+  keyHandler = null;
+  navHi();
+  document.getElementById('nav').style.display = P.cur ? '' : 'none';
+  if(view==='login') renderLogin();
+  else if(view==='backup') renderBackup();
+  else if(view==='home') renderHome();
+  else if(view==='topics') renderTopics();
+  else if(view==='learn'||view==='revise') renderQuiz();
+  else if(view==='test') renderTest();
+  else if(view==='basics') renderBasics();
+  else if(view==='stats') renderStats();
+}
+render();
+</script>
+</body>
+</html>
