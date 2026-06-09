@@ -1,8 +1,17 @@
 # 🎖️ Territorial Army Exam Trainer — 12 July 2026
 
-**Live at: https://ailenskart.github.io/TA-exam/** — share the link with
-anyone preparing; it's free for unlimited users. It also works offline:
-open `index.html` in any browser.
+Free hosting for unlimited users — pick either (or both):
+
+- **Vercel:** go to [vercel.com/new](https://vercel.com/new), sign in with
+  GitHub, import `ailenskart/TA-exam`, keep all defaults, click **Deploy**.
+  Site appears at `https://ta-exam-<something>.vercel.app` and redeploys
+  automatically on every push (`vercel.json` is already configured).
+- **GitHub Pages:** in repo **Settings → Pages**, set Source to
+  **Deploy from a branch** → `gh-pages` → `/ (root)`. Site appears at
+  https://ailenskart.github.io/TA-exam/ (the workflow keeps `gh-pages`
+  updated on every push).
+
+It also works offline: open `index.html` in any browser.
 
 **Profiles:** on first visit each learner creates a profile (optional PIN),
 and gets their own progress, revision queue and stats on that device.
