@@ -1,8 +1,14 @@
 # 🎖️ Territorial Army Exam Trainer — 12 July 2026
 
-A zero-install study app for the TA CBT. Open `index.html` in any browser
-(phone or laptop) — no server, no internet needed. Progress is saved on the
-device automatically.
+**Live at: https://ailenskart.github.io/TA-exam/** — share the link with
+anyone preparing; it's free for unlimited users. It also works offline:
+open `index.html` in any browser.
+
+**Profiles:** on first visit each learner creates a profile (optional PIN),
+and gets their own progress, revision queue and stats on that device.
+**Resume on another device:** Home → 💾 Backup / resume → download the backup
+file (or copy the code), then restore it on the new device. Progress is
+stored in the browser, so clearing browser data erases it — keep a backup.
 
 **Question bank (Phase 1):** 1,463 questions · 25 topics · extracted from `Final_V4.xlsx`.
 
